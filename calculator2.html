@@ -92,40 +92,13 @@
     document.querySelector('#num-9').addEventListener('click', onClickNumber);
 
     const onClickOperator = (op) => () => {
-      // 다시 밑에 계산하는 함수 쓰기
-      if(numTwo) {
-        switch (operator) {
-          case '+':
-            $result.value = parseInt(numOne) + parseInt(numTwo);
-            break;
-          case '-':
-            $result.value = numOne - numTwo;
-            break;
-          case '*':
-            $result.value = numOne * numTwo;
-            break;
-          case '/':
-            $result.value = numOne / numTwo;
-            break;
-          default:
-            break
-        }
-        numOne = $result.value;
-        numTwo = '';
-      }
       if (numOne) {
         operator = op;
         $operator.value = op;
       } else {
-        // 가장 처음 음수 처리
-        if( op === "-") {
-          numOne += op; // 음수글자 추가
-          $result.value +- op;
-        } else {  
         alert('숫자를 먼저 입력하세요.');
       }
     }
-  };
     document.querySelector('#plus').addEventListener('click', onClickOperator('+'));
     document.querySelector('#minus').addEventListener('click', onClickOperator('-'));
     document.querySelector('#divide').addEventListener('click', onClickOperator('/'));
@@ -148,11 +121,6 @@
           default:
             break;
         }
-        // 다시 초기화 하는 연산
-        $operator.value = ''; // $operator값 초기화
-        numOne = $result.value; // numOne이 결과값임
-        operator = ''; // operator=값 초기화
-        numTwo = ''; // numTwo값 초기화
       } else {
         alert('숫자를 먼저 입력하세요.');
       }

@@ -40,24 +40,36 @@
         console.log(winBalls, bouns);
 
         const $result = document.querySelector("#result");
-        const $bonus = document.querySelector("#bonus");
+        
 
         // 숫자 원 보여주는 것
-        const showBall = () => {
+        const drawBall = (number, $parent) => {
             const $ball = document.createElement("div"); //div태그 만들기
             $ball.className = "ball"; // class 말고 className으로 해야됨
             $ball.textContent = number; // 
-            $target.appendChild($ball);
+            $parent.appendChild($ball);
         };
         // [0, 1, 2, 3, 4, 5] -> [1000, 2000, 3000, 4000, 5000, 6000]
-        for(let i = 0; i < 6; i++){
+        
+        for (let i = 0; i < winBalls.length; i++) {
             setTimeout(() => {
-                showBall(winBalls[0], $result);
-            }, (i + 1) * 1000);  //(i + 1)초 뒤에 추가
+            console.log(winBalls[i], i);
+            showBall(winBalls[i], $result);
+            }, (i + 1) * 1000); //(i + 1)초 뒤에 추가
         }
+        // var 를 썼을 경우
+        // for(var i = 0; i < winBalls.length; i++){
+        //     (function(j) {
+        //         setTimeout(() => {
+        //             console.log(winBalls[j], j);
+        //             drawBall(winBalls[j], $result);
+        //         }, (i + 1) * 1000);  //(i + 1)초 뒤에 추가
+        //     })(i);
+        // }
+        const $bonus = document.querySelector("#bonus");
         // 마지막은 보너스 볼 보여준다.
         setTimeout(() => {
-            showBall(bouns, $bonus);
+            drawBall(bouns, $bonus);
         },7000); 
     </script>
 </body>

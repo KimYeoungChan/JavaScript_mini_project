@@ -59,13 +59,21 @@
         }
         let intervaIld = setInterval(changeComputerHand, 50); //0.05초마다 바뀜
 
+        // clickButton 5번 호출, 인터벌 1번, 2번, 3번, 4번, 5번(애만 intervaIld)
+        // 그 다음에 버튼을 클리갛면 5번만 취소
         const clickButton = () => {
-            clearInterval(intervaIld);
+            clearInterval(intervaIld); // 타이머 제거(이미지 멈춤)
             // 점수 계산 및 화면 표시
             setTimeout(() => {
+                // 1초 멈췄다가 다시 움직임
+                clearInterval(intervaIld);
                 intervaIld = setInterval(changeComputerHand, 50);
-            },50)
+                // 타이머마다 ID가 달라지므로, 달라진 ID 저장 필수
+            }, 1000);
         };
+        $rock.addEventListener('click', clickButton);
+        $scissors.addEventListener('click', clickButton);
+        $paper.addEventListener('click', clickButton);
     </script>
 </body>
 

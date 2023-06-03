@@ -68,6 +68,8 @@
         // 그 다음에 버튼을 클리하면 5번만 취소
         let clickable = true;
         let scroe = 0;
+        let user = 0;
+        let com = 0;
         const clickButton = () => {
             if (clickable) {
                 clearInterval(intervaIld); //타이머 제거(이미지 멈춤), 클릭하자마자 실행
@@ -88,19 +90,27 @@
                 
                 if ([2, -1].includes(diff)){
                     scroe += 1;
-                    message = '승리';
+                    user += 1;
+                    message = '승리!';
                 } else if ([-2, 11].includes(diff)) {
                     scroe -= 1;
-                    message = '패배';
+                    com += 1;
+                    message = '패배!';
                 } else {
-                    message = '무승부';
+                    message = '무승부!';
                 }
-                $score.textContent = `${message} 총: ${scroe}점`;
-                setTimeout(() => { //1초 멈췄다가 다시 움직임
-                    clickable = true;
-                    intervaIld = setInterval(changeComputerHand, 50); //타이머마다 ID가 달라지므로, 달라진 ID 저장 필수
-                }, 1000);
 
+                if(user >= 3 ) {
+                    $score.textContent = `나의 승리 ${user}:${com}`;
+                } else if (com >= 3) {
+                    $score.textContent = `컴퓨터의 승리 ${user}:${com}`;
+                } else {
+                    $score.textContent = `${message} ${user}:${com}`;
+                    setTimeout(() => { //1초 멈췄다가 다시 움직임
+                        clickable = true;
+                        intervaIld = setInterval(changeComputerHand, 50); //타이머마다 ID가 달라지므로, 달라진 ID 저장 필수
+                    }, 1000);
+                }
                 console.log(
                     computerChioce, myChoice, myScore, computerChioce, diff, message
                 );

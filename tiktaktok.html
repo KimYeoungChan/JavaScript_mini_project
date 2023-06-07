@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>틱택톡</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        td {
+            border:1px solid black;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const { body } = document;
+        const $table = document.createElement('table');
+        const $result =  document.createElement('div'); // 결과창
+        const rows = [];
+        let turn = 'O';
+    
+        for(let i = 1; i <= 3; i++) {
+            const $tr = document.createElement('tr');
+            const cells = [];
+            for(let j = 1; j <= 3; j++){
+                const $td = document.createElement('td');
+                cells.push($td);
+                $td.addEventListener('click', (event) => {
+                    // 칸에 글자가 존재하는지 확인
+                    if (event.target.textContent) return; // 글자 존재시 함수 멈추기
+                    event.target.textContent = turn; // 클릭하면 텍스트 생성
+                    // 승부 확인
+                    // 턴 넘기기
+                    if( turn === 'O') {
+                        turn = 'X';
+                    } else if (turn === 'X') {
+                        turn = 'O';
+                    }
+                }); 
+                $tr.appendChild($td);
+            }
+            rows.push(cells);
+            $table.append($tr);
+        }
+        document.body.append($table);
+        document.body.append($result);
+    </script>
+</body>
+</html>

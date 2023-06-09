@@ -32,7 +32,7 @@
             <div id="battle-1">1.공격</div>
             <div id="battle-2">2.회복</div>
             <div id="battle-3">3.도망</div>
-            <input id="battle-input" />
+            <input id="battle-input" type="number" />
             <button id="battle-button">입력</button>
         </form>
         <div id="message"></div>
@@ -52,6 +52,9 @@
         const $heroHp = document.querySelector('#hero-hp');
         const $heroXp = document.querySelector('#hero-xp');
         const $heroAtt = document.querySelector('#hero-att');
+        const $monsterName = document.querySelector('#monster-name');
+        const $monsterHp = document.querySelector('#monster-hp');
+        const $monsterAtt = document.querySelector('#monster-att');
         const $message = document.querySelector('#message');
 
         // hero 객체
@@ -79,6 +82,7 @@
             { name: '마왕', hp: 150, att: 35, xp: 50 },
         ];
 
+        // 시작 화면 
         $startsScreen.addEventListener('submit', (event) => {
             event.preventDefault(); // 중복 방지
             const name = event.target['name-input'].value; // 'name-input'라는 id를 가진 이벤트 타겟의 값
@@ -90,6 +94,37 @@
             $heroXp.textContent = `XP: ${hero.xp}/${15 * hero.lev}`;
             $heroAtt.textContent = `ATT: ${hero.att}`;
             hero.name = name;
+        });
+
+        // 게임 모드
+        $gameMenu.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const input = event.target['menu-input'].value;
+            if (input === '1') { // 모험
+                $gameMenu.style.display = 'none';
+                $battleMenu.style.display = 'block';
+                monster = JSON.parse(
+                    JSON.stringify(monsterList[Math.floor(Math.random() * monsterList.length)])
+                );
+                monster.maxHp = monster.hp;
+                $monsterName.textContent = monster.name;
+                $monsterHp.textContent = `HP: ${monster.hp}/${monster.maxHp}`;
+                $monsterAtt.textContent = `ATT: ${monster.att}`;
+            } else if (input === '2') { // 휴식
+            } else if (input === '3') { // 종료
+            }
+        });
+
+        // 배틀 모드
+        $battleMenu.addEventListener('submit', (event) => {
+            const input = event.target['menu-input'].valueAsNumber;
+            if (input === '1') {
+
+            } else if (input === '2'){
+
+            } else if(input === '3') {
+
+            }
         });
 
     </script>

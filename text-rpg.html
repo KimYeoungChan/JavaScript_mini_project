@@ -57,43 +57,93 @@
         const $monsterAtt = document.querySelector('#monster-att');
         const $message = document.querySelector('#message');
 
-        // hero 객체
-        const hero = {
-            name: '',
-            lev: 1,
-            maxHp: 100,
-            hp: 100,
-            xp: 0,
-            att: 10,
-            attack(monster) {
-                monster.hp -= this.att; // 몬스터 체력에서 내 공격력 만큼 까임
-                this.hp -= monster.att; // 내 채력에서 몬스터 공격력 만큼 까임
-            },
-            heal(monster) {
-                this.hp += 20; // hp를 20 회복
-                this.hp -= monster.att; // 몬스터가 떄린 만큼 체력이 깍임
-            },
-        };
-        let monster = null; // 몬스터가 처음에는 생성이 안되서
-        // 임의로 몬스터 리스트
-        const monsterList = [
-            { name: '슬라임', hp: 25, att: 10, xp: 10 },
-            { name: '스켈레톤', hp: 50, att: 15, xp: 20 },
-            { name: '마왕', hp: 150, att: 35, xp: 50 },
-        ];
+        class Game {
+            constructor(name) {
+                this.monster = null;
+                this.hero = new Hero(this, name);
+                this.monsterList = [
+                    { name: '슬라임', hp: 25, att: 10, xp: 10 },
+                    { name: '스켈레톤', hp: 50, att: 15, xp: 20 },
+                    { name: '마왕', hp: 150, att: 35, xp: 50 },
+                ];
+                this.start(name);
+            }
+            start(name) {
+                $gameMenu.addEventListener('submit', this.onGameMenuInput);
+                $battleMenu.addEventListener('submit', this.onBattleMenuInput);
+                this.changeScreen('game');
+            }
+            changeScreen(screen) {
+                if (screen === 'start') {
+                    $startsScreen.style.display = 'block';
+                    $gameMenu.style.display = 'none';
+                    $battleMenu.style.display = 'none';
+                } else if (screen === 'game') {
+                    $startsScreen.style.display = 'none';
+                    $gameMenu.style.display = 'block';
+                    $battleMenu.style.display = 'none';
+                } else if (screen === 'battle') {
+                    $startsScreen.style.display = 'none';
+                    $gameMenu.style.display = 'none';
+                    $battleMenu.style.display = 'block';
+                }
+            }
+            onGameMenuInput = (event) => {
+                event.preventDefault();
+                const input = event.target['menu-input'].value;
+                if (input === '1') { // 모험
+                } else if (input === '2') { // 휴식
+                } else if (input === '3') { // 종료
+                }
+            }
+            onBattleMenuInput = (event) => {
+                event.preventDefault();
+                const input = event.target['battle-input'].value;
+                if (input === '1') { // 공격
+                } else if (input === '2') { // 회복
+                } else if (input === '3') { // 도망
+                }
+            }
+        }
 
+        class Hero {
+            constructor(game, name) {
+                this.game = game;
+                this.name = name;
+                this.lev = 1;
+                this.maxHp = 100;
+                this.hp = 100;
+                this.xp = 0;
+                this.att = 10;
+            }
+            attack(target) {
+                target.hp -= this.att;
+            }
+            heal(monster) {
+                this.hp += 20;
+                this.hp -= monster.att;
+            }
+        }
+
+        class Monster {
+            constructor(game, name, hp, att, xp) {
+                this.game = game;
+                this.name = name;
+                this.maxHp = hp;
+                this.xp = xp;
+                this.att = att;
+            }
+            attack(target) {
+                target.hp -= this.att;
+            }
+        }
+
+        let game = null;
         // 시작 화면 
         $startsScreen.addEventListener('submit', (event) => {
-            event.preventDefault(); // 중복 방지
-            const name = event.target['name-input'].value; // 'name-input'라는 id를 가진 이벤트 타겟의 값
-            $startsScreen.style.display = 'none';  // display 스타일을 'none'으로 바꿈
-            $gameMenu.style.display = 'block'; // display 스타일을 'block'으로 바꿈
-            $heroName.textContent = name; // 
-            $heroLevel.textContent = `${hero.lev}Lev`;
-            $heroHp.textContent = `HP: ${hero.hp}/${hero.maxHp}`;
-            $heroXp.textContent = `XP: ${hero.xp}/${15 * hero.lev}`;
-            $heroAtt.textContent = `ATT: ${hero.att}`;
-            hero.name = name;
+            event.preventDefault();
+            const name = event.target['name-input'].value;
+            game = new Game(name);
         });
 
         // 게임 모드
@@ -101,15 +151,6 @@
             event.preventDefault();
             const input = event.target['menu-input'].value;
             if (input === '1') { // 모험
-                $gameMenu.style.display = 'none';
-                $battleMenu.style.display = 'block';
-                monster = JSON.parse(
-                    JSON.stringify(monsterList[Math.floor(Math.random() * monsterList.length)])
-                );
-                monster.maxHp = monster.hp;
-                $monsterName.textContent = monster.name;
-                $monsterHp.textContent = `HP: ${monster.hp}/${monster.maxHp}`;
-                $monsterAtt.textContent = `ATT: ${monster.att}`;
             } else if (input === '2') { // 휴식
             } else if (input === '3') { // 종료
             }
@@ -118,11 +159,10 @@
         // 배틀 모드
         $battleMenu.addEventListener('submit', (event) => {
             const input = event.target['menu-input'].valueAsNumber;
-            if (input === '1') {
+            if (input === '1') { // 공격
+            } else if (input === '2') { // 회복
 
-            } else if (input === '2'){
-
-            } else if(input === '3') {
+            } else if (input === '3') { // 도발
 
             }
         });

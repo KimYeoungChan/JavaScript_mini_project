@@ -119,7 +119,12 @@
                     this.updateMonsterStat();
                     this.showMessage(`몬스터와 마주쳤다. ${this.monster.name}인 것 같다!`);
                 } else if (input === '2') { // 휴식
+                    this.hero.hp = this.hero.maxHp;
+                    this.updateHeroStat();
+                    this.showMessage('충분한 휴식을 취했습니다.');
                 } else if (input === '3') { // 종료
+                    this.showMessage();
+                    this.quit();
                 }
             }
 
@@ -145,10 +150,23 @@
                     } else {
                         this.showMessage(`${hero.att}의 데미지를 주고, ${monster.att}의 데미지를 받았습니다.`);
                     }
+
                     this.updateHeroStat();
                     this.updateMonsterStat();
+
                 } else if (input === '2') { // 회복
+
+                    const { hero, monster } = this;
+                    hero.hp = Math.min(hero.maxHp, hero.hp + 20);
+                    monster.attack(hero);
+                    this.showMessage('체력을 조금 회복했다!');
+                    this.updateHeroStat();
+
                 } else if (input === '3') { // 도망
+                    this.changeScreen('game');
+                    this.monster = null;
+                    this.showMessage('부리나케 도망쳤다!');
+                    this.updateMonsterStat();
                 }
             }
             // 영웅 상태 업데이트

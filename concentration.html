@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,7 +58,7 @@
         let shuffled = []; // 셔플 배열
         let clicked = []; // 클릭한 카드를 배열화
         let completed = []; // 일치하는 카드를 배열화
-        let clickable = false; // 클릭 방지 변수
+        let clickable = false; // 효과 방지 변수
 
         function shuffle() { // 피셔-예이츠 셔플
             for (let i = 0; colorCopy.length > 0; i += 1) {
@@ -89,6 +88,9 @@
         }
 
         // 카드 클릭 함수
+        // clicked= [2, 5, 8, 9];
+        // 태스크큐 : 
+        // 백 : addEventLinstener(12)
         function onClickCard() {
             // clickable가 true 이거나 clickable의 첫 번째가 ==== 클릭한 함수가 같으면
             if( !clickable || completed.includes(this) || clickable[0] === this) {
@@ -115,16 +117,19 @@
                 }, 1000);
                 return;
             }
+            clickable = false; // 
             // 5초 뒤에 안 맞으면 다시 원래 대로 돌아감
             setTimeout(() => {
                 clicked[0].classList.remove('flipped'); // flipped라는 클래스 제거
                 clicked[1].classList.remove('flipped'); // flipped라는 클래스 제거
                 clicked = []; // 초기화
+                clickable = true;
             }, 500);
         };
 
         // 게임시작 함수
         function startGame() {
+            clickable = false;
             shuffle();
             for (let i = 0; i < total; i += 1) {
                 const card = createCard(i); // 

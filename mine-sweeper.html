@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지뢰 찾기</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        /* 테이블 경계선 */
+        td {
+            border: 1px solid #bbb;
+            text-align: center;
+            line-height: 20px;
+            width: 20px;
+            height: 20px;
+            background: #888;
+        }
+
+        td.opened {
+            background: white;
+        }
+
+        td.flag {
+            background: red;
+        }
+
+        td.question {
+            background: orange;
+        }
+    </style>
+</head>
+
+<body>
+    <table id="table">
+        <tbody></tbody>
+    </table>
+    <div id="result"></div>
+    <script>
+        const $tbody = document.querySelector('#table tbody');
+        const $result = document.querySelector('#result');
+        const row = 10; // 줄
+        const cell = 10; // 칸
+        const mine = 10;
+        const CODE = {
+            NORMAL: -1, // 닫힌 칸(지뢰 없음)
+            QUESTION: -2,
+            FLAG: -3,
+            QUESTION_MINE: -4, // 물음표 지뢰
+            FLAG_MINE: -5, // 깃발 지뢰
+            MINE: -6,
+            OPENED: 0, // 0 이상이면 다모두 열린 칸
+        };
+        let data; // 데이터 변수
+
+        // 지뢰 생성 함수
+        function plantMine() {
+            // 10 X 10 표 만들기
+            const candidate = Array(row * cell).fill().map((arr, i) => {
+                return i;
+            });
+            const shuffle = [];
+            // 랜덤 배열 생성
+            while (candidate.length > row * cell - mine) {
+                const chosen = candidate.splice(Math.floor(Math.random() * candidate.length), 1)[0];
+                shuffle.push(chosen);
+            }
+            const data = [];
+            // 지뢰가 아닌 배열 생성
+            for (let i = 0; i < row; i++) {
+                const rowData = [];
+                data.push(rowData);
+                for (let j = 0; j < cell; j++) {
+                    rowData.push(CODE.NORMAL);
+                }
+            }
+            // console.log(data);
+
+            // 지뢰를 결정하는 배열 생성
+            // shuffle = [85, 19, 93] cell = 12 row = 8 
+            for (let k = 0; k < shuffle.length; k++) {
+                const ver = Math.floor(shuffle[k] / cell); // 줄 구하는 변수
+                const hor = shuffle[k] % cell; // 칸 구하는 변수
+                data[ver][hor] = CODE.MINE;
+            }
+            return data;
+        }
+
+        // 우클릭 함수
+        function onRightClick(event) {
+            event.preventDefault() // 우클릭 기본 방지
+            const target = event.target; // target 변수 지정
+            const rowIndex = target.parentNode.rowIndex; // 몇 번째 줄, target.parentNode = $tr
+            const cellIndex = target.cellIndex; // 몇 번째 칸
+            const cellData = data[rowIndex][cellIndex]; // 셀값은 2차원 배열 값임
+
+            if (cellData === CODE.MINE) { // 지뢰이면 (-6)
+                data[rowIndex][cellIndex] = CODE.QUESTION_MINE; // 물음표 지뢰로 (-4)
+                target.className = 'question'; // question 클래스 추가
+                target.textContent = '?'; // ? 글씨 추가
+
+            } else if (cellData === CODE.QUESTION_MINE) { // 물음표 지뢰이면 (-6)
+                data[rowIndex][cellIndex] = CODE.FLAG_MINE; // 깃발 지뢰로 (-5)
+                target.className = 'flag'; // flag 클래스 추가
+                target.textContent = '!'; // ! 글씨 추가
+
+            } else if (cellData === CODE.FLAG_MINE) { // 깃발 지뢰 (-5)
+                data[rowIndex][cellIndex] = CODE.MINE; // 지뢰로 (-6)
+                target.clasName = '';
+                target.textContent = '';
+
+            } else if (cellData === CODE.NORMAL) { // 닫힌 칸이면 (-1)
+                data[rowIndex][cellIndex] = CODE.QUESTION; // 물음표 (-2)
+                target.className = 'question'; // question 클래스 추가
+                target.textContent = '?'; // ? 글씨 추가
+
+            } else if (cellData === CODE.QUESTION) { // 물음표면 (-2)
+                data[rowIndex][cellIndex] = CODE.FLAG; // 깃발으로 (-3)
+                target.className = 'flag'; // flag 클래스 추가
+                target.textContent = '!'; // ! 글씨 추가
+
+            } else if (cellData === CODE.FLAG) { // 깃발으로 (-3)
+                data[rowIndex][cellIndex] = CODE.NORMAL; // 닫힌 칸으로 (-1)
+                target.className = '';
+                target.textContent = '';
+            }
+
+        }
+
+        function drawTable() {
+            data = plantMine();
+            data.forEach((row) => {
+                const $tr = document.createElement('tr');
+                row.forEach((cell) => {
+                    const $td = document.createElement('td');
+                    if (cell === CODE.MINE) {
+                        $td.textContent = 'X'; // 개발 편의를 위해
+                    };
+                    $tr.append($td);
+                });
+                $tbody.append($tr);
+                // 우클릭 이벤트 onContextMenu임
+                $tbody.addEventListener('contextmenu', onRightClick); // 이벤트 버블링을 이용을 해서 tbody를 한 번만 해도 된다.
+            });
+        };
+        drawTable();
+
+
+    </script>
+</body>
+
+</html>

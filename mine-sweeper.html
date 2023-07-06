@@ -130,6 +130,45 @@
 
         }
 
+
+        // 1 2 3
+        // 4 5 6
+        // 7 8 9
+        // 지뢰 갯수 함수
+        function countMine(rowIndex, cellIndex) {
+            const mines = [ CODE.MINE, CODE.QUESTION_MINE, CODE.FLAG_MINE ];
+            let i = 0;
+            // 앞에 값이 존재하면 i++를 실행함
+            mines.includes(data[rowIndex - 1] ?. [cellIndex - 1]) && i++; // 1번칸
+            mines.includes(data[rowIndex - 1] ?. [cellIndex]) && i++; // 2번칸
+            mines.includes(data[rowIndex - 1] ?. [cellIndex + 1]) && i++; // 3번칸
+            mines.includes(data[rowIndex][cellIndex - 1]) && i++; // 4번칸
+            // 5번칸은 자기 자신
+            mines.includes(data[rowIndex][cellIndex + 1]) && i++; // 6번칸
+            mines.includes(data[rowIndex + 1] ?. [cellIndex - 1]) && i++; // 7번칸
+            mines.includes(data[rowIndex + 1] ?. [cellIndex]) && i++; // 8번칸
+            mines.includes(data[rowIndex + 1] ?. [cellIndex + 1]) && i++; // 9번칸
+            return i;
+        };
+
+        // 좌클릭 함수
+        function onLeftClick(event) {
+            const target = event.target; // td 태그
+            const rowIndex = target.parentNode.rowIndex; // 몇 번째 줄, target.parentNode = $tr
+            const cellIndex = target.cellIndex; // 몇 번째 칸
+            const cellData = data[rowIndex][cellIndex]; // 셀값은 2차원 배열 값임
+            if ( cellData === CODE.NORMAL ) { // 닫힌 칸이면(-1)
+                const count = countMine(rowIndex, cellIndex); // 몇번째 줄, 칸 카운트 세는 것임
+                target.textContent = count || ''; //
+                target.className = 'opend'; // opend 클래스 추가
+                data[rowIndex][cellIndex] = count;
+            } else if ( cellData === CODE.MINE ) { // 지뢰 칸이면(-6)
+                // 평~
+                // 나머지는 무시
+            }   // 
+        };
+
+        // 칸 생성 함수
         function drawTable() {
             data = plantMine();
             data.forEach((row) => {
@@ -144,6 +183,7 @@
                 $tbody.append($tr);
                 // 우클릭 이벤트 onContextMenu임
                 $tbody.addEventListener('contextmenu', onRightClick); // 이벤트 버블링을 이용을 해서 tbody를 한 번만 해도 된다.
+                $tbody.addEventListener('click', onLeftClick); // 이벤트 버블링을 이용을 해서 tbody를 한 번만 해도 된다.
             });
         };
         drawTable();

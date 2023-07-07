@@ -159,11 +159,16 @@
             const cellData = data[rowIndex][cellIndex]; // 셀값은 2차원 배열 값임
             if ( cellData === CODE.NORMAL ) { // 닫힌 칸이면(-1)
                 const count = countMine(rowIndex, cellIndex); // 몇번째 줄, 칸 카운트 세는 것임
-                target.textContent = count || ''; //
-                target.className = 'opend'; // opend 클래스 추가
+                target.textContent = count ?? ''; // 있으면 앞에 값, 없으면 뒤에 값
+                target.className = 'opened'; // opend 클래스 추가
                 data[rowIndex][cellIndex] = count;
             } else if ( cellData === CODE.MINE ) { // 지뢰 칸이면(-6)
                 // 평~
+                target.textContent = '평';
+                target.className = 'opened';
+                // 이벤트 버블링 때문에 한 번만 제거 해도 된다.
+                $tbody.removeEventListener('contextmenu', onRightClick);
+                $tbody.removeEventListener('click', onLeftClick);
                 // 나머지는 무시
             }   // 
         };

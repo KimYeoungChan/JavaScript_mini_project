@@ -42,9 +42,9 @@
     <script>
         const $tbody = document.querySelector('#table tbody');
         const $result = document.querySelector('#result');
-        const row = 10; // 줄
-        const cell = 10; // 칸
-        const mine = 10;
+        let row = 10; // 줄
+        let cell = 10; // 칸
+        let mine = 10; // 지뢰
         const CODE = {
             NORMAL: -1, // 닫힌 칸(지뢰 없음)
             QUESTION: -2,
@@ -67,7 +67,7 @@
             while (candidate.length > row * cell - mine) {
                 const chosen = candidate.splice(Math.floor(Math.random() * candidate.length), 1)[0];
                 shuffle.push(chosen);
-            }
+            };
             const data = [];
             // 지뢰가 아닌 배열 생성
             for (let i = 0; i < row; i++) {
@@ -75,8 +75,8 @@
                 data.push(rowData);
                 for (let j = 0; j < cell; j++) {
                     rowData.push(CODE.NORMAL);
-                }
-            }
+                };
+            };
             // console.log(data);
 
             // 지뢰를 결정하는 배열 생성
@@ -85,13 +85,13 @@
                 const ver = Math.floor(shuffle[k] / cell); // 줄 구하는 변수
                 const hor = shuffle[k] % cell; // 칸 구하는 변수
                 data[ver][hor] = CODE.MINE;
-            }
+            };
             return data;
-        }
+        };
 
         // 우클릭 함수
         function onRightClick(event) {
-            event.preventDefault() // 우클릭 기본 방지
+            event.preventDefault(); // 우클릭 기본 방지
             const target = event.target; // target 변수 지정
             const rowIndex = target.parentNode.rowIndex; // 몇 번째 줄, target.parentNode = $tr
             const cellIndex = target.cellIndex; // 몇 번째 칸
@@ -126,29 +126,56 @@
                 data[rowIndex][cellIndex] = CODE.NORMAL; // 닫힌 칸으로 (-1)
                 target.className = '';
                 target.textContent = '';
-            }
-
-        }
-
+            };
+        };
 
         // 1 2 3
         // 4 5 6
         // 7 8 9
         // 지뢰 갯수 함수
         function countMine(rowIndex, cellIndex) {
-            const mines = [ CODE.MINE, CODE.QUESTION_MINE, CODE.FLAG_MINE ];
+            const mines = [CODE.MINE, CODE.QUESTION_MINE, CODE.FLAG_MINE];
             let i = 0;
             // 앞에 값이 존재하면 i++를 실행함
-            mines.includes(data[rowIndex - 1] ?. [cellIndex - 1]) && i++; // 1번칸
-            mines.includes(data[rowIndex - 1] ?. [cellIndex]) && i++; // 2번칸
-            mines.includes(data[rowIndex - 1] ?. [cellIndex + 1]) && i++; // 3번칸
+            mines.includes(data[rowIndex - 1]?.[cellIndex - 1]) && i++; // 1번칸
+            mines.includes(data[rowIndex - 1]?.[cellIndex]) && i++; // 2번칸
+            mines.includes(data[rowIndex - 1]?.[cellIndex + 1]) && i++; // 3번칸
             mines.includes(data[rowIndex][cellIndex - 1]) && i++; // 4번칸
             // 5번칸은 자기 자신
             mines.includes(data[rowIndex][cellIndex + 1]) && i++; // 6번칸
-            mines.includes(data[rowIndex + 1] ?. [cellIndex - 1]) && i++; // 7번칸
-            mines.includes(data[rowIndex + 1] ?. [cellIndex]) && i++; // 8번칸
-            mines.includes(data[rowIndex + 1] ?. [cellIndex + 1]) && i++; // 9번칸
+            mines.includes(data[rowIndex + 1]?.[cellIndex - 1]) && i++; // 7번칸
+            mines.includes(data[rowIndex + 1]?.[cellIndex]) && i++; // 8번칸
+            mines.includes(data[rowIndex + 1]?.[cellIndex + 1]) && i++; // 9번칸
             return i;
+        };
+
+        function open(rowIndex, cellIndex) {
+            const target = $tbody.children[rowIndex]?.children[cellIndex];
+            if (!target) {
+                return;
+            }
+
+            const count = countMine(rowIndex, cellIndex);
+            target.textContent = count || '';
+            target.className = 'opened';
+            data[rowIndex][cellIndex] = count;
+            return count;
+        };
+
+        // 주변 오픈 함수
+        // 재귀 함수 : 자기 함수 안에 자기 함수 호출
+        function openAround(rI, cI) {
+            const count = open(rI, cI)
+            if (count === 0) {
+                openAround(rI - 1, cI - 1);
+                openAround(rI - 1, cI);
+                openAround(rI - 1, cI + 1);
+                openAround(rI, cI - 1);
+                openAround(rI, cI + 1);
+                openAround(rI + 1, cI - 1);
+                openAround(rI + 1, cI);
+                openAround(rI + 1, cI + 1);
+            };
         };
 
         // 좌클릭 함수
@@ -157,20 +184,21 @@
             const rowIndex = target.parentNode.rowIndex; // 몇 번째 줄, target.parentNode = $tr
             const cellIndex = target.cellIndex; // 몇 번째 칸
             const cellData = data[rowIndex][cellIndex]; // 셀값은 2차원 배열 값임
-            if ( cellData === CODE.NORMAL ) { // 닫힌 칸이면(-1)
-                const count = countMine(rowIndex, cellIndex); // 몇번째 줄, 칸 카운트 세는 것임
-                target.textContent = count ?? ''; // 있으면 앞에 값, 없으면 뒤에 값
-                target.className = 'opened'; // opend 클래스 추가
+            if (cellData === CODE.NORMAL) { // 닫힌 칸이면(-1)
+                openAround(rowIndex, cellIndex); // 클릭 근처 칸 다 열림
+                const count = countMine(rowIndex, cellIndex);
+                target.textContent = count || '';
+                target.className = 'opened';
                 data[rowIndex][cellIndex] = count;
-            } else if ( cellData === CODE.MINE ) { // 지뢰 칸이면(-6)
-                // 평~
+            } else if (cellData === CODE.MINE) { // 지뢰 칸이면(-6)
                 target.textContent = '평';
                 target.className = 'opened';
                 // 이벤트 버블링 때문에 한 번만 제거 해도 된다.
                 $tbody.removeEventListener('contextmenu', onRightClick);
                 $tbody.removeEventListener('click', onLeftClick);
                 // 나머지는 무시
-            }   // 
+            };
+            // 아무 동작도 안 함
         };
 
         // 칸 생성 함수
@@ -192,8 +220,6 @@
             });
         };
         drawTable();
-
-
     </script>
 </body>
 

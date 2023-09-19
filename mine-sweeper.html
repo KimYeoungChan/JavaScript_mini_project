@@ -35,12 +35,19 @@
 </head>
 
 <body>
+    <form id="form">
+        <input placeholder="가로 줄" id="row" size="5" />
+        <input placeholder="세로 줄" id="cell" size="5" />
+        <input placeholder="지뢰" id="mine" size="5" />
+        <button>생성</button>
+    </form>
     <div id="timer">0초</div>
     <table id="table">
         <tbody></tbody>
     </table>
     <div id="result"></div>
     <script>
+        const $form = document.querySelector('#form');
         const $timer = document.querySelector('#timer');
         const $tbody = document.querySelector('#table tbody');
         const $result = document.querySelector('#result');
@@ -56,13 +63,30 @@
             MINE: -6, // 닫힌 칸(지뢰 O)
             OPENED: 0, // 0 이상이면 다모두 열린 칸
         };
+        // 사용자가 직접 할 수 있도록
         let data; // 데이터 변수
-        let openCount = 0; // 열린된 카운트 변수
-        let startTime = new Date(); // 시작초
-        const interval = setInterval(() => {
-            const time = Math.floor((new Date() - startTime) / 1000); // 현재시간 - 시작 시간 / 1000으로 하면 초로 나옴 물론 정수로
-            $timer.textContent = `${time}초`;
-        }, 1000);
+        let openCount;// 열린된 카운트 변수
+        let startTime; // 시작시작
+        let interval; // 시간 죄는 것
+        const dev = true; // 개발모드로 할 때
+
+        function onSubmit() {
+            event.preventDefault(); // 기본 클릭 방지
+            row = parseInt(event.target.row.value); // parseInt로 이벤트 타겟의 row값을 숫자로 변환
+            cell = parseInt(event.target.cell.value); // parseInt로 이벤트 타겟의 cell값을 숫자로 변환
+            mine = parseInt(event.target.mine.value); // parseInt로 이벤트 타겟의 지뢰값을 숫자로 변환
+            openCount = 0;
+            clearInterval(interval);
+            $tbody.innerHTML = ''; // $tbody 초기화
+            drawTable(); // 게임 테이블 생성
+            startTime = new Date(); // 시작초
+            interval = setInterval(() => { // 걸린 시간 재는것
+                const time = Math.floor((new Date() - startTime) / 1000); // 현재 시간과 시작 시간을 차이를 계산하여 초 단위로 반올림한 값
+                $timer.textContent = `${time}초`;
+            }, 1000);
+        };
+        $form.addEventListener('submit', onSubmit);
+
 
         // 지뢰 생성 함수
         function plantMine() {
@@ -215,7 +239,7 @@
             if (cellData === CODE.NORMAL) { // 닫힌 칸이면(-1)
                 openAround(rowIndex, cellIndex); // 클릭 근처 칸 다 열림
             } else if (cellData === CODE.MINE) { // 지뢰 칸이면
-                target.textContent = '펑'; // 셀의 텍스트 내용을 '평'으로 설정
+                // target.textContent = ''; // 셀의 텍스트 내용을 '평'으로 설정
                 target.className = 'opened'; // 셀의 클래스를 'opened'로 설정하여 열린 상태로 표시
                 clearInterval(interval); // 지뢰 클릭하면 타이머 멈추면됨
                 $tbody.removeEventListener('contextmenu', onRightClick);
@@ -232,7 +256,7 @@
                 row.forEach((cell) => { // 각 행의 셀(cell)에 대해 반복
                     const $td = document.createElement('td'); // td 태그 생성
                     if (cell === CODE.MINE) { // 현재 열이 지뢰인 경우
-                        $td.textContent = 'X'; // 개발 편의를 위해
+                        // $td.textContent = 'X'; // 개발 편의를 위해
                     };
                     $tr.append($td); // 현재 열을 현재 행에 추가
                 });
@@ -242,7 +266,6 @@
                 $tbody.addEventListener('click', onLeftClick); // 이벤트 버블링을 이용을 해서 tbody를 한 번만 해도 된다.
             });
         };
-        drawTable(); // 게임 테이블을 생성
     </script>
 </body>
 

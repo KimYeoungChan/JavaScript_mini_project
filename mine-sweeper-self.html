@@ -230,17 +230,64 @@
             }, 0) // 즉시 실행함
         };
 
+        // 첫 번째 클릭시, 지뢰 이동 함수
+        let normalCellFound = false; // 정상 셀을, 찾았는지 여부를 나타내는 변수를 false로 초기화
+        let serached;  // 검색된 공간을 저장할 변수
+        let firstClick = true; // 첫 번째 클릭 여부를 나타내는 변수를 true로 초기화합
+        function transferMine(rI, cI) { // 지뢰를 전송하는 함수를 정의, 매개변수로 rI와 cI임
+            if (normalCellFound) return; // 이미 빈칸을 찾았으면 종료
+            if (rI < 0 || rI >= row || cI < 0 || cI >= cell) return; // 행과 열의 범위를 벗어난 경우 함수를 종료, undefined 에러를 잡기 위해서
+            if (searched[rI][cI]) return; // 이미 찾은 칸이면 종료
+            if (data[rI][cI] === CODE.NORMAL) { // 빈칸인 경우
+                normalCellFound = true;  // 정상 셀을 찾았음을 표시
+                data[rI][cI] = CODE.MINE; // 해당 위치를 지뢰로 설정
+            } else { // 지뢰 칸인 경우 8방향 탐색
+                searched[rI][cI] = true; // 해당 위치를 검색 완료로 표시
+                transferMine(rI - 1, cI - 1);
+                transferMine(rI - 1, cI);
+                transferMine(rI - 1, cI + 1);
+                transferMine(rI, cI - 1);
+                transferMine(rI, cI + 1);
+                transferMine(rI + 1, cI - 1);
+                transferMine(rI + 1, cI);
+                transferMine(rI + 1, cI + 1);
+            };
+        };
+
+        // 지뢰 보여주는 함수
+        function showMines() {
+            const mines = [CODE.MINE, CODE.QUESTION_MINE, CODE.FLAG_MINE]; // mine 라는 배열 생성
+            data.forEach((row, rowIndex) => { // 데이터 배열의 각 행에 대한 반복문 시작
+                row.forEach((cell, cellIndex) => { // 행 내 각 셀에 대한 반복문 시작
+                    if (mines.includes(cell)) { // 현재 셀이 지뢰, 의문 표시된 지뢰, 또는 깃발이 표시된 지뢰 중 하나인 경우
+                        $tbody.children[rowIndex].children[cellIndex].textContent = 'X'; // 해당 셀의 화면 텍스트를 'X'로 설정
+                    }
+                });
+            });
+        }
+
+
 
         // 좌클릭 함수
         function onLeftClick(event) {
             const target = event.target;  // 클릭된 td 태그 가져옴
             const rowIndex = target.parentNode.rowIndex; // 몇 번째 줄, target.parentNode = $tr
             const cellIndex = target.cellIndex; // 몇 번째 칸
-            const cellData = data[rowIndex][cellIndex]; // 셀값은 2차원 배열 값임
+            let cellData = data[rowIndex][cellIndex]; // 셀값은 2차원 배열 값임
+            if (firstClick) { // 첫번째 클릭이면
+                firstClick = false; // false로 활성화
+                searched = Array(row).fill().map(() => []); // return 빈배열임, 새로운 2차원 배열을 만들어서 하는 것임
+                if (cellData === CODE.MINE) { // 첫 클릭이 지뢰면
+                    transferMine(rowIndex, cellIndex); // 지뢰 옮기기
+                    data[rowIndex][cellIndex] = CODE.NORMAL; // 지금 칸을 빈칸으로
+                    cellData = CODE.NORMAL;  // 셀 데이터를 CODE.NORMAL로 설정
+                }
+            }
             if (cellData === CODE.NORMAL) { // 닫힌 칸이면(-1)
                 openAround(rowIndex, cellIndex); // 클릭 근처 칸 다 열림
             } else if (cellData === CODE.MINE) { // 지뢰 칸이면
-                // target.textContent = ''; // 셀의 텍스트 내용을 '평'으로 설정
+                showMines(); // 지뢰 다 보여주는 함수
+                target.textContent = '펑'; // 셀의 텍스트 내용을 '평'으로 설정
                 target.className = 'opened'; // 셀의 클래스를 'opened'로 설정하여 열린 상태로 표시
                 clearInterval(interval); // 지뢰 클릭하면 타이머 멈추면됨
                 $tbody.removeEventListener('contextmenu', onRightClick);
